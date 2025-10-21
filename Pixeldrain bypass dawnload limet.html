@@ -1,87 +1,305 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixeldrain Link Converter</title>
+    <title> Pixeldrain bypass</title>
+    <link rel="stylesheet" href="https:cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --danger: #e63946;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
         }
+
         .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
             max-width: 500px;
-            margin: 50px auto;
+            overflow: hidden;
+            transition: var(--transition);
         }
-        h2 {
-            color: #333;
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-group {
             margin-bottom: 25px;
+            position: relative;
         }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            z-index: 1;
+        }
+
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            border: 2px solid #ccc;
-            border-radius: 6px;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e1e5ee;
+            border-radius: 12px;
             font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--light);
+            direction: ltr;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 18px;
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+
+        .btn {
+            display: block;
             width: 100%;
-            margin-top: 10px;
-            transition: background-color 0.3s;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
         }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            margin-left: 8px;
+        }
+
         #resultButton {
-            background-color: #28a745;
             display: none;
-            margin-top: 25px;
-        }
-        #resultButton:hover {
-            background-color: #1e7e34;
-        }
-        #error {
             margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #dc3545;
-            background-color: #f8d7da;
-            color: #721c24;
-            border-radius: 4px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .error-message {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background-color: rgba(230, 57, 70, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
             display: none;
-            font-weight: bold;
+            font-weight: 500;
+            animation: shake 0.5s ease;
+        }
+
+        .success-message {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background-color: rgba(76, 201, 240, 0.1);
+            border: 1px solid #4cc9f0;
+            color: #4895ef;
+            display: none;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .loader {
+            display: none;
+            width: 30px;
+            height: 30px;
+            margin: 15px auto;
+            border: 3px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2> Pixeldrain bypass</h2>
-    <p></p>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-link"></i>
+        </div>
+        <h1><i class="fas fa-exchange-alt"></i> pixeldrain bypass</h1>
+        <p></p>
+    </div>
 
-    <input type="text" id="pixeldrainLink" placeholder="أدخل الرابط هنا...">
+    <div class="content">
+        <div class="input-group">
+            <label for="pixeldrainLink"><i class="fas fa-paperclip"></i> أدخل رابط Pixeldrain</label>
+            <div class="input-field">
+                <i class="fas fa-link"></i>
+                <input type="text" id="pixeldrainLink" placeholder="https://pixeldrain.com/u/xxxxxx">
+            </div>
+        </div>
 
-    <button onclick="convertLink()">تحويل وفتح الرابط</button>
+        <button class="btn btn-primary" onclick="convertLink()">
+            <i class="fas fa-sync-alt"></i> تحويل وفتح الرابط
+        </button>
 
-    <div id="error"></div>
-    
-    <button id="resultButton" onclick="openNewLink()">
-        مبروك 👏 
-    </button>
+        <div class="loader" id="loader"></div>
+
+        <div class="error-message" id="error"></div>
+        <div class="success-message" id="success"></div>
+        
+        <button class="btn btn-success pulse" id="resultButton" onclick="openNewLink()">
+            <i class="fas fa-check-circle"></i> مبروك 👏 افتح الرابط المحول
+        </button>
+    </div>
+
+    <div class="footer">
+        <p>by TechnoAfandi</p>
+    </div>
 </div>
 
 <script>
@@ -92,45 +310,59 @@
         const linkInput = document.getElementById('pixeldrainLink').value.trim();
         const resultButton = document.getElementById('resultButton');
         const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const loader = document.getElementById('loader');
 
         resultButton.style.display = 'none';
         errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        loader.style.display = 'block';
         convertedUrl = '';
 
-        if (!linkInput) {
-            errorDiv.textContent = "الرجاء إدخال رابط.";
-            errorDiv.style.display = 'block';
-            return;
-        }
-
-        let extractedId = '';
-        
-        try {
-            const match = linkInput.match(/\/([a-zA-Z0-9]+)$/);
-            
-            if (match && match[1]) {
-                extractedId = match[1];
-            } else {
-                 throw new Error("ID not found");
+        setTimeout(() => {
+            if (!linkInput) {
+                errorDiv.textContent = "الرجاء إدخال رابط Pixeldrain.";
+                errorDiv.style.display = 'block';
+                loader.style.display = 'none';
+                return;
             }
 
-        } catch (e) {
-            errorDiv.textContent = "صيغة رابط Pixeldrain غير صحيحة. يرجى التأكد من أن الرابط كامل.";
-            errorDiv.style.display = 'block';
-            return;
-        }
-        
-        if (extractedId) {
-            convertedUrl = TARGET_BASE_URL + extractedId;
+            let extractedId = '';
             
-            resultButton.style.display = 'block';
+            try {
+                const match = linkInput.match(/\/([a-zA-Z0-9]+)$/);
+                
+                if (match && match[1]) {
+                    extractedId = match[1];
+                } else {
+                    throw new Error("ID not found");
+                }
+
+            } catch (e) {
+                errorDiv.textContent = "صيغة رابط Pixeldrain غير صحيحة. يرجى التأكد من أن الرابط كامل.";
+                errorDiv.style.display = 'block';
+                loader.style.display = 'none';
+                return;
+            }
             
-            openNewLink(convertedUrl); 
-            
-        } else {
-            errorDiv.textContent = "تعذر استخراج الـ ID من الرابط. تحقق من الصيغة.";
-            errorDiv.style.display = 'block';
-        }
+            if (extractedId) {
+                convertedUrl = TARGET_BASE_URL + extractedId;
+                
+                loader.style.display = 'none';
+                successDiv.textContent = "تم تحويل الرابط بنجاح! اضغط على الزر أدناه لفتحه.";
+                successDiv.style.display = 'block';
+                resultButton.style.display = 'block';
+                
+                setTimeout(() => {
+                    openNewLink(convertedUrl);
+                }, 2000);
+                
+            } else {
+                errorDiv.textContent = "تعذر استخراج الـ ID من الرابط. تحقق من الصيغة.";
+                errorDiv.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        }, 1500);
     }
     
     function openNewLink(urlToOpen) {
@@ -143,6 +375,14 @@
             document.getElementById('error').style.display = 'block';
         }
     }
+
+    document.getElementById('pixeldrainLink').addEventListener('focus', function() {
+        this.parentElement.style.transform = 'scale(1.02)';
+    });
+
+    document.getElementById('pixeldrainLink').addEventListener('blur', function() {
+        this.parentElement.style.transform = 'scale(1)';
+    });
 </script>
 
 </body>
