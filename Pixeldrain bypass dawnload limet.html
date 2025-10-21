@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixeldrain Link Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultButton {
+            background-color: #28a745;
+            display: none;
+            margin-top: 25px;
+        }
+        #resultButton:hover {
+            background-color: #1e7e34;
+        }
+        #error {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 4px;
+            display: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2> Pixeldrain bypass</h2>
+    <p></p>
+
+    <input type="text" id="pixeldrainLink" placeholder="أدخل الرابط هنا...">
+
+    <button onclick="convertLink()">تحويل وفتح الرابط</button>
+
+    <div id="error"></div>
+    
+    <button id="resultButton" onclick="openNewLink()">
+        مبروك 👏 
+    </button>
+</div>
+
+<script>
+    const TARGET_BASE_URL = "https://pixeldrain.sriflix.my/";
+    let convertedUrl = '';
+
+    function convertLink() {
+        const linkInput = document.getElementById('pixeldrainLink').value.trim();
+        const resultButton = document.getElementById('resultButton');
+        const errorDiv = document.getElementById('error');
+
+        resultButton.style.display = 'none';
+        errorDiv.style.display = 'none';
+        convertedUrl = '';
+
+        if (!linkInput) {
+            errorDiv.textContent = "الرجاء إدخال رابط.";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        let extractedId = '';
+        
+        try {
+            const match = linkInput.match(/\/([a-zA-Z0-9]+)$/);
+            
+            if (match && match[1]) {
+                extractedId = match[1];
+            } else {
+                 throw new Error("ID not found");
+            }
+
+        } catch (e) {
+            errorDiv.textContent = "صيغة رابط Pixeldrain غير صحيحة. يرجى التأكد من أن الرابط كامل.";
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (extractedId) {
+            convertedUrl = TARGET_BASE_URL + extractedId;
+            
+            resultButton.style.display = 'block';
+            
+            openNewLink(convertedUrl); 
+            
+        } else {
+            errorDiv.textContent = "تعذر استخراج الـ ID من الرابط. تحقق من الصيغة.";
+            errorDiv.style.display = 'block';
+        }
+    }
+    
+    function openNewLink(urlToOpen) {
+        const url = urlToOpen || convertedUrl;
+        
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            document.getElementById('error').textContent = "يرجى إدخال الرابط أولاً والضغط على 'تحويل'.";
+            document.getElementById('error').style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>
