@@ -166,6 +166,18 @@
             box-shadow: 0 8px 25px rgba(0, 180, 216, 0.5);
         }
 
+        .btn-warning {
+            background: linear-gradient(to right, #ff9e00, #ff6b00);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(to right, #ff6b00, #ff9e00);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.5);
+        }
+
         .btn:active {
             transform: translateY(0);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -173,6 +185,15 @@
 
         .btn i {
             margin-left: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+            display: none;
+            animation: fadeIn 0.6s ease-out;
         }
 
         .result-buttons {
@@ -201,12 +222,29 @@
             gap: 8px;
         }
 
-        .result-button:hover {
+        .copy-button {
+            background: linear-gradient(to right, #ff9e00, #ff6b00);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .result-button:hover, .copy-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
         }
 
-        .result-button:active {
+        .result-button:active, .copy-button:active {
             transform: translateY(0);
         }
 
@@ -234,6 +272,17 @@
             animation: fadeIn 0.6s ease-out;
         }
 
+        .info-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(90, 24, 154, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary-dark);
+            font-size: 14px;
+            text-align: center;
+        }
+
         .loader {
             display: none;
             width: 35px;
@@ -251,6 +300,26 @@
             color: var(--primary);
             font-weight: 600;
             text-align: center;
+        }
+
+        .copied-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--success);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
         }
 
         @keyframes spin {
@@ -312,6 +381,10 @@
                 padding: 30px 20px;
             }
             
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
             .result-buttons {
                 grid-template-columns: 1fr;
             }
@@ -349,8 +422,19 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
 
         <div class="error-message" id="error"></div>
         <div class="success-message" id="success"></div>
+        <div class="info-message" id="duplicateInfo" style="display: none;"></div>
+        
+        <div class="action-buttons" id="actionButtons">
+            <button class="btn btn-success" onclick="showDownloadButtons()">
+                <i class="fas fa-download"></i> عرض روابط التحميل
+            </button>
+            <button class="btn btn-warning" onclick="showCopyButtons()">
+                <i class="fas fa-copy"></i> نسخ الروابط
+            </button>
+        </div>
         
         <div class="result-buttons" id="resultButtons"></div>
+        <div class="result-buttons" id="copyButtons"></div>
     </div>
 
     <div class="footer">
@@ -358,23 +442,35 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
     </div>
 </div>
 
+<div class="copied-notification" id="copiedNotification">
+    <i class="fas fa-check-circle"></i> تم النسخ إلى الحافظة
+</div>
+
 <script>
     const TARGET_BASE_URL = "https://pixeldrain.sriflix.my/";
     let convertedUrls = [];
+    let uniqueUrls = [];
 
     function convertLinks() {
         const linksTextarea = document.getElementById('pixeldrainLinks');
         const linksInput = linksTextarea.value.trim();
+        const actionButtons = document.getElementById('actionButtons');
         const resultButtons = document.getElementById('resultButtons');
+        const copyButtons = document.getElementById('copyButtons');
         const errorDiv = document.getElementById('error');
         const successDiv = document.getElementById('success');
+        const duplicateInfo = document.getElementById('duplicateInfo');
         const loader = document.getElementById('loader');
 
+        actionButtons.style.display = 'none';
         resultButtons.style.display = 'none';
+        copyButtons.style.display = 'none';
         errorDiv.style.display = 'none';
         successDiv.style.display = 'none';
+        duplicateInfo.style.display = 'none';
         loader.style.display = 'block';
         convertedUrls = [];
+        uniqueUrls = [];
 
         setTimeout(() => {
             if (!linksInput) {
@@ -383,8 +479,6 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
                 loader.style.display = 'none';
                 return;
             }
-
-          
             const linksArray = linksInput.split('\n')
                 .map(link => link.trim())
                 .filter(link => link.length > 0);
@@ -398,8 +492,8 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
 
             let validLinksCount = 0;
             let invalidLinks = [];
-
-           
+            let duplicateLinks = 0;
+            
             linksArray.forEach((link, index) => {
                 let extractedId = '';
                 
@@ -408,12 +502,20 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
                     
                     if (match && match[1]) {
                         extractedId = match[1];
-                        convertedUrls.push({
-                            original: link,
-                            converted: TARGET_BASE_URL + extractedId,
-                            id: extractedId
-                        });
-                        validLinksCount++;
+                        
+                        
+                        const isDuplicate = convertedUrls.some(item => item.id === extractedId);
+                        
+                        if (!isDuplicate) {
+                            convertedUrls.push({
+                                original: link,
+                                converted: TARGET_BASE_URL + extractedId,
+                                id: extractedId
+                            });
+                            validLinksCount++;
+                        } else {
+                            duplicateLinks++;
+                        }
                     } else {
                         throw new Error("ID not found");
                     }
@@ -423,17 +525,26 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
                 }
             });
             
+           
+            uniqueUrls = [...convertedUrls];
+            
             loader.style.display = 'none';
             
             if (validLinksCount > 0) {
+                // عرض أزرار الإجراءات
+                actionButtons.style.display = 'grid';
                 
-                displayResultButtons();
-                
-                
+                // عرض رسالة النجاح
                 successDiv.innerHTML = `تم تحويل ${validLinksCount} رابط بنجاح 💯`;
                 
+                // عرض معلومات عن الروابط المكررة
+                if (duplicateLinks > 0) {
+                    duplicateInfo.innerHTML = `تم إزالة ${duplicateLinks} رابط مكرر`;
+                    duplicateInfo.style.display = 'block';
+                }
+                
                 if (invalidLinks.length > 0) {
-                    successDiv.innerHTML += `<br><small>${invalidLinks.length} رابط لم يتم تحويله</small>`;
+                    successDiv.innerHTML += `<br><small>${invalidLinks.length} رابط غير صالح</small>`;
                 }
                 
                 successDiv.style.display = 'block';
@@ -444,11 +555,14 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
         }, 1500);
     }
     
-    function displayResultButtons() {
+    function showDownloadButtons() {
         const resultButtons = document.getElementById('resultButtons');
+        const copyButtons = document.getElementById('copyButtons');
+        
+        copyButtons.style.display = 'none';
         resultButtons.innerHTML = '';
         
-        convertedUrls.forEach((urlObj, index) => {
+        uniqueUrls.forEach((urlObj, index) => {
             const button = document.createElement('button');
             button.className = 'result-button pulse';
             button.innerHTML = `<i class="fas fa-external-link-alt"></i> رابط ${index + 1}`;
@@ -459,11 +573,70 @@ https://pixeldrain.com/u/zzzzzz"></textarea>
         resultButtons.style.display = 'grid';
     }
     
+    function showCopyButtons() {
+        const resultButtons = document.getElementById('resultButtons');
+        const copyButtons = document.getElementById('copyButtons');
+        
+        resultButtons.style.display = 'none';
+        copyButtons.innerHTML = '';
+        
+        uniqueUrls.forEach((urlObj, index) => {
+            const button = document.createElement('button');
+            button.className = 'copy-button pulse';
+            button.innerHTML = `<i class="fas fa-copy"></i> نسخ ${index + 1}`;
+            button.onclick = () => copyLink(urlObj.converted, index + 1);
+            copyButtons.appendChild(button);
+        });
+        
+        copyButtons.style.display = 'grid';
+    }
+    
     function openLink(url) {
         if (url) {
             window.open(url, '_blank');
         }
-    } document.getElementById('pixeldrainLinks').addEventListener('input', function() {
+    }
+    
+    function copyLink(url, index) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+                showCopiedNotification();
+            }).catch(err => {
+                fallbackCopyTextToClipboard(url);
+            });
+        } else {
+            fallbackCopyTextToClipboard(url);
+        }
+    }
+    
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = 0;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showCopiedNotification();
+        } catch (err) {
+            console.error('فشل نسخ النص: ', err);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    function showCopiedNotification() {
+        const notification = document.getElementById('copiedNotification');
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+    document.getElementById('pixeldrainLinks').addEventListener('input', function() {
         const linksText = this.value.trim();
         const linkCount = linksText ? linksText.split('\n').filter(link => link.trim().length > 0).length : 0;
         document.getElementById('linkCount').textContent = `${linkCount} روابط مكتوبة`;
