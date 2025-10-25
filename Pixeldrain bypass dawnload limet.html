@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Pixeldrain bypass</title>
+    <title>Pixeldrain Bypass:by TechnoAfandiand☄Ṡ̸̚̕͝EI̵͎͎̝͐F̴̅ افندي✨</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -40,7 +40,7 @@
             border-radius: 25px; 
             box-shadow: var(--shadow);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             overflow: hidden;
             transition: var(--transition);
             border: 1px solid rgba(0, 0, 0, 0.05); 
@@ -105,7 +105,7 @@
             z-index: 1;
         }
 
-        input[type="text"] {
+        textarea {
             width: 100%;
             padding: 18px 45px 18px 15px; 
             border: 2px solid #e1e5ee;
@@ -114,9 +114,12 @@
             transition: var(--transition);
             background-color: var(--light);
             direction: ltr;
+            min-height: 150px;
+            resize: vertical;
+            font-family: monospace;
         }
 
-        input[type="text"]:focus {
+        textarea:focus {
             border-color: var(--secondary);
             box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
             outline: none;
@@ -136,6 +139,7 @@
             position: relative;
             overflow: hidden;
             letter-spacing: 0.5px;
+            margin-bottom: 15px;
         }
 
         .btn-primary {
@@ -171,10 +175,39 @@
             margin-left: 8px;
         }
 
-        #resultButton {
-            display: none;
+        .result-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
             margin-top: 25px;
+            display: none;
             animation: fadeIn 0.6s ease-out;
+        }
+
+        .result-button {
+            background: linear-gradient(to right, var(--secondary), var(--success));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .result-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+        }
+
+        .result-button:active {
+            transform: translateY(0);
         }
 
         .error-message {
@@ -210,6 +243,14 @@
             border-radius: 50%;
             border-top-color: var(--secondary);
             animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        .link-count {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 600;
+            text-align: center;
         }
 
         @keyframes spin {
@@ -270,6 +311,10 @@
             .content {
                 padding: 30px 20px;
             }
+            
+            .result-buttons {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -281,20 +326,23 @@
             <i class="fas fa-link"></i>
         </div>
         <h1><i class="fas fa-exchange-alt"></i> pixeldrain bypass</h1>
-        <p></p>
+        <p>by ☄Ṡ̸̚̕͝EI̵͎͎̝͐F̴̅ افندي✨</p>
     </div>
 
     <div class="content">
         <div class="input-group">
-            <label for="pixeldrainLink"><i class="fas fa-paperclip"></i> أدخل رابط Pixeldrain</label>
+            <label for="pixeldrainLinks"><i class="fas fa-paperclip"></i> أدخل روابط Pixeldrain</label>
             <div class="input-field">
                 <i class="fas fa-link"></i>
-                <input type="text" id="pixeldrainLink" placeholder="https://pixeldrain.com/u/xxxxxx">
+                <textarea id="pixeldrainLinks" placeholder="https://pixeldrain.com/u/xxxxxx
+https://pixeldrain.com/u/yyyyyy
+https://pixeldrain.com/u/zzzzzz"></textarea>
             </div>
+            <div class="link-count" id="linkCount">0 روابط مكتوبة</div>
         </div>
 
-        <button class="btn btn-primary" onclick="convertLink()">
-            <i class="fas fa-sync-alt"></i> get
+        <button class="btn btn-primary" onclick="convertLinks()">
+            <i class="fas fa-sync-alt"></i> تحويل جميع الروابط
         </button>
 
         <div class="loader" id="loader"></div>
@@ -302,96 +350,131 @@
         <div class="error-message" id="error"></div>
         <div class="success-message" id="success"></div>
         
-        <button class="btn btn-success pulse" id="resultButton" onclick="openNewLink()">
-            <i class="fas fa-check-circle"></i> مبروك 👏 
-        </button>
+        <div class="result-buttons" id="resultButtons"></div>
     </div>
 
     <div class="footer">
-        <p>by ☄Ṡ̸̚̕͝EI̵͎͎̝͐F̴̅ & TechnoAfandi</p>
+        <p>by TechnoAfandi</p>
     </div>
 </div>
 
 <script>
     const TARGET_BASE_URL = "https://pixeldrain.sriflix.my/";
-    let convertedUrl = '';
+    let convertedUrls = [];
 
-    function convertLink() {
-        const linkInput = document.getElementById('pixeldrainLink').value.trim();
-        const resultButton = document.getElementById('resultButton');
+    function convertLinks() {
+        const linksTextarea = document.getElementById('pixeldrainLinks');
+        const linksInput = linksTextarea.value.trim();
+        const resultButtons = document.getElementById('resultButtons');
         const errorDiv = document.getElementById('error');
         const successDiv = document.getElementById('success');
         const loader = document.getElementById('loader');
 
-        resultButton.style.display = 'none';
+        resultButtons.style.display = 'none';
         errorDiv.style.display = 'none';
         successDiv.style.display = 'none';
         loader.style.display = 'block';
-        convertedUrl = '';
+        convertedUrls = [];
 
         setTimeout(() => {
-            if (!linkInput) {
-                errorDiv.textContent = "الرجاء إدخال رابط Pixeldrain.";
+            if (!linksInput) {
+                errorDiv.textContent = "الرجاء إدخال روابط Pixeldrain.";
                 errorDiv.style.display = 'block';
                 loader.style.display = 'none';
                 return;
             }
 
-            let extractedId = '';
-            
-            try {
-                const match = linkInput.match(/\/([a-zA-Z0-9]+)$/);
+          
+            const linksArray = linksInput.split('\n')
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+
+            if (linksArray.length === 0) {
+                errorDiv.textContent = "لم يتم العثور على أي روابط صالحة.";
+                errorDiv.style.display = 'block';
+                loader.style.display = 'none';
+                return;
+            }
+
+            let validLinksCount = 0;
+            let invalidLinks = [];
+
+           
+            linksArray.forEach((link, index) => {
+                let extractedId = '';
                 
-                if (match && match[1]) {
-                    extractedId = match[1];
-                } else {
-                    throw new Error("ID not found");
+                try {
+                    const match = link.match(/\/([a-zA-Z0-9]+)$/);
+                    
+                    if (match && match[1]) {
+                        extractedId = match[1];
+                        convertedUrls.push({
+                            original: link,
+                            converted: TARGET_BASE_URL + extractedId,
+                            id: extractedId
+                        });
+                        validLinksCount++;
+                    } else {
+                        throw new Error("ID not found");
+                    }
+
+                } catch (e) {
+                    invalidLinks.push(link);
                 }
-
-            } catch (e) {
-                errorDiv.textContent = "صيغة رابط Pixeldrain غير صحيحة. يرجى التأكد من أن الرابط كامل.";
-                errorDiv.style.display = 'block';
-                loader.style.display = 'none';
-                return;
-            }
+            });
             
-            if (extractedId) {
-                convertedUrl = TARGET_BASE_URL + extractedId;
+            loader.style.display = 'none';
+            
+            if (validLinksCount > 0) {
                 
-                loader.style.display = 'none';
-                successDiv.textContent = "تمت العملية بنجاح 💯";
+                displayResultButtons();
+                
+                
+                successDiv.innerHTML = `تم تحويل ${validLinksCount} رابط بنجاح 💯`;
+                
+                if (invalidLinks.length > 0) {
+                    successDiv.innerHTML += `<br><small>${invalidLinks.length} رابط لم يتم تحويله</small>`;
+                }
+                
                 successDiv.style.display = 'block';
-                resultButton.style.display = 'block';
-                
-                setTimeout(() => {
-                    openNewLink(convertedUrl);
-                }, 2000);
-                
             } else {
-                errorDiv.textContent = "تعذر استخراج الـ ID من الرابط. تحقق من الصيغة.";
+                errorDiv.textContent = "لم يتم العثور على أي رابط صالح للتحويل.";
                 errorDiv.style.display = 'block';
-                loader.style.display = 'none';
             }
         }, 1500);
     }
     
-    function openNewLink(urlToOpen) {
-        const url = urlToOpen || convertedUrl;
+    function displayResultButtons() {
+        const resultButtons = document.getElementById('resultButtons');
+        resultButtons.innerHTML = '';
         
+        convertedUrls.forEach((urlObj, index) => {
+            const button = document.createElement('button');
+            button.className = 'result-button pulse';
+            button.innerHTML = `<i class="fas fa-external-link-alt"></i> رابط ${index + 1}`;
+            button.onclick = () => openLink(urlObj.converted);
+            resultButtons.appendChild(button);
+        });
+        
+        resultButtons.style.display = 'grid';
+    }
+    
+    function openLink(url) {
         if (url) {
             window.open(url, '_blank');
-        } else {
-            document.getElementById('error').textContent = "يرجى إدخال الرابط أولاً والضغط على 'تحويل'.";
-            document.getElementById('error').style.display = 'block';
         }
-    }
+    } document.getElementById('pixeldrainLinks').addEventListener('input', function() {
+        const linksText = this.value.trim();
+        const linkCount = linksText ? linksText.split('\n').filter(link => link.trim().length > 0).length : 0;
+        document.getElementById('linkCount').textContent = `${linkCount} روابط مكتوبة`;
+    });
 
-    document.getElementById('pixeldrainLink').addEventListener('focus', function() {
+    document.getElementById('pixeldrainLinks').addEventListener('focus', function() {
         this.parentElement.style.transform = 'scale(1.02)';
         this.style.borderColor = 'var(--secondary)';
     });
 
-    document.getElementById('pixeldrainLink').addEventListener('blur', function() {
+    document.getElementById('pixeldrainLinks').addEventListener('blur', function() {
         this.parentElement.style.transform = 'scale(1)';
         this.style.borderColor = '#e1e5ee';
     });
